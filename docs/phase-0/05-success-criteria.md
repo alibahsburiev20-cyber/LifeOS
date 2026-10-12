@@ -4,12 +4,12 @@
 
 ## 1. Phase 0 exit checklist
 
-- [ ] Owner has reviewed and approved or amended documents 1–4.
-- [ ] License decision recorded (ADR 0001 changed from Proposed to Accepted or replaced).
-- [ ] Contribution policy published (`CONTRIBUTING.md` finalized after the license decision).
-- [ ] Open questions in `01-scope.md` answered or explicitly postponed.
-- [ ] Threat model gates (G1–G4) agreed.
-- [ ] Phase 1 stack-selection spike defined with comparison criteria.
+- [ ] Owner has reviewed and approved or amended documents 1–4 and ADRs 0001–0004.
+- [x] License decision recorded (ADR 0001, Apache-2.0; `LICENSE` and `NOTICE` added).
+- [x] Contribution policy published (`CONTRIBUTING.md`).
+- [x] Open questions in `01-scope.md` answered or explicitly postponed (section 8 and 9).
+- [ ] Threat model gates (G1–G4) agreed by the owner.
+- [x] Phase 1 stack-selection spike defined with comparison criteria (ADR 0002).
 - [ ] Root `README.md` updated to link this documentation.
 
 ## 2. Phase 1 acceptance criteria (testable)

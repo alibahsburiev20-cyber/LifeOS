@@ -28,7 +28,7 @@ Primary audience: individuals (for example students, developers, and independent
 | Tasks | Create manually or from a goal; states Planned / In progress / Waiting for approval / Blocked / Completed / Failed; cancel and retry |
 | Plans | Agent proposes a plan with subtasks and dependencies; user edits before it runs |
 | Memory | Explicit, reviewable, editable, deletable; scoped global or per project; each memory shows source and date |
-| Models | One model gateway with at least one path: a local model server **or** a user-supplied API key; model choice shown per run |
+| Models | One model gateway with at least one path: a local model server **or** a user-supplied API key; model choice shown per run (see ADR 0003) |
 | Data portability | Export and import of all user data in a documented, provider-neutral format |
 | Safety defaults | No autonomous consequential actions; read-only integrations only; global stop control |
 | Activity | Per-task log with status, reason, and result |
@@ -45,17 +45,15 @@ Primary audience: individuals (for example students, developers, and independent
 
 Shared team or family workspaces; monitoring arbitrary sources; email and calendar write access; community skill marketplace; spoken responses; automatic provider routing by cost.
 
-## 6. Technology choices — intentionally deferred
+## 6. Technology choices
 
-The README requires choices to be made after testing deployment cost, mobile usability, security, and maintenance. Phase 0 therefore fixes **requirements on the stack**, not the stack:
+Decided in ADR 0002 (TypeScript, React PWA, Node.js with Fastify, SQLite), subject to a time-boxed spike. The requirements that drove the choice remain binding on any future change:
 
 - Self-hostable on modest hardware without a mandatory paid service.
 - Local-first storage with a documented export format.
 - A model adapter interface that separates provider specifics from agent logic.
-- Execution sandbox boundary defined before any code-execution feature is built.
-- Permissively documented interfaces for connectors.
-
-Recommended Phase 1 spike (time-boxed): build the smallest vertical slice (project, chat, one task, one memory, export) on two candidate stacks and compare against the criteria above.
+- Execution sandbox boundary defined before any code-execution feature is built (design deferred to a later ADR).
+- Documented interfaces for connectors.
 
 ## 7. Non-goals
 
@@ -65,9 +63,17 @@ Recommended Phase 1 spike (time-boxed): build the smallest vertical slice (proje
 - No claim that results are verified when no verification was performed.
 - Not affiliated with OpenAI, ChatGPT, or Dots.
 
-## 8. Open questions
+## 8. Questions resolved in Phase 0
 
-- Single-user only in Phase 1, or multi-user from the start? (Proposal: single user per instance.)
-- Which local model runtimes are officially supported first?
-- Minimum supported phone browser versions for the PWA.
-- Retention defaults for activity logs.
+| Question | Answer | Where |
+|----------|--------|-------|
+| Single-user or multi-user in Phase 1? | Single user per instance | ADR 0004 |
+| Which local model runtime first? | An OpenAI-compatible local server, Ollama as the reference | ADR 0003 |
+| Minimum PWA browser support? | Current and previous major versions of Chrome (Android), Safari (iOS), and desktop Chrome, Firefox, Safari | ADR 0004 |
+| Activity log retention default? | 90 days, configurable | ADR 0004 |
+
+## 9. Still open
+
+- Sandbox technology (decided in a separate ADR before gate G2).
+- Retention and handling of files uploaded in Phase 2.
+- Final name check before the first public release (ADR 0004).
