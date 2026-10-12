@@ -1,6 +1,6 @@
 # Phase 0 — Specification and Design
 
-**Status:** Draft for owner review. Nothing here describes implemented functionality.
+**Status:** Drafts complete; decisions recorded as ADRs. Awaiting owner review. Nothing here describes implemented functionality.
 
 Phase 0 turns the product vision in the root `README.md` into decisions that Phase 1 (local-first MVP) can be built against.
 
@@ -11,11 +11,19 @@ Phase 0 turns the product vision in the root `README.md` into decisions that Pha
 | 3 | [Data model](03-data-model.md) | Entities, task state machine, export format |
 | 4 | [Permissions](04-permissions.md) | Risk tiers, grants, approvals, kill switch |
 | 5 | [Success criteria](05-success-criteria.md) | Phase 0 exit checklist and Phase 1 acceptance criteria |
-| ADR | [0001 License](../adr/0001-license.md) | License options and a proposal (not yet decided) |
 
-## Open decisions (owner input needed)
+## Decisions (ADRs)
 
-1. License (see ADR 0001). No `LICENSE` file is added until this is decided.
-2. Primary implementation stack. Deliberately not chosen here; see Scope, section 6.
-3. First supported model path for the MVP (local model server vs. user-supplied API key).
-4. Whether the project name `LifeOS` is final.
+| ADR | Decision | Status |
+|-----|----------|--------|
+| [0001](../adr/0001-license.md) | Apache-2.0 | Accepted |
+| [0002](../adr/0002-technology-stack.md) | TypeScript, React PWA, Node.js + Fastify, SQLite; sandbox deferred | Accepted, validated by a spike |
+| [0003](../adr/0003-model-path.md) | OpenAI-compatible adapter; local runtime (Ollama) first, user's own key second | Accepted |
+| [0004](../adr/0004-project-name-and-instance-model.md) | Keep the name LifeOS for now; one user per instance | Accepted |
+
+These decisions were delegated by the repository owner and can be changed with a new ADR. The license decision should be revisited before the first external code contribution is merged.
+
+## Still needed from the owner
+
+- Review and approval of documents 1–5 and ADRs 0001–0004.
+- Confirmation of the copyright holder line in `NOTICE` (currently "LifeOS contributors").

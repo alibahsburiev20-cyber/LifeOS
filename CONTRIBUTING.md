@@ -1,6 +1,6 @@
 # Contributing to LifeOS
 
-**Status:** Draft. LifeOS is at the specification stage (see `docs/phase-0/`). The license has not been chosen yet (see `docs/adr/0001-license.md`), so **code contributions cannot be accepted until a license is published.** Feedback on the specification is welcome now.
+**Status:** LifeOS is at the specification stage (see `docs/phase-0/`). The project is licensed under Apache-2.0 (see `LICENSE` and `docs/adr/0001-license.md`). Documentation and specification feedback is welcome now; code contributions will be accepted once Phase 1 begins and a first implementation exists.
 
 ## What helps right now
 
@@ -18,7 +18,11 @@ Open an issue or a pull request that states:
 3. **Risks:** security, privacy, cost, maintenance.
 4. **Test plan:** how it will be verified.
 
-Keep changes small and focused. Documentation changes should say whether they alter a requirement or only clarify wording.
+Keep changes small and focused. Documentation changes should say whether they alter a requirement or only clarify wording. Architectural decisions are recorded as ADRs in `docs/adr/`.
+
+## License of contributions
+
+By submitting a contribution you agree that it is provided under the Apache License 2.0 (section 5 of the license). Please add a `Signed-off-by: Your Name <email>` line to commits (`git commit -s`) to confirm you have the right to submit the work.
 
 ## Rules
 
@@ -34,4 +38,4 @@ Do not open a public issue for a vulnerability. Until a private reporting channe
 
 ## Conduct
 
-Be respectful and constructive. A formal code of conduct will be added together with the license.
+Be respectful and constructive. A formal code of conduct will be added before the first release.

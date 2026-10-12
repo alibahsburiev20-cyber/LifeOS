@@ -1,6 +1,6 @@
 # ADR 0001: Project license
 
-- **Status:** Proposed (not decided)
+- **Status:** Accepted (decision delegated by the repository owner on 2026-10-12; may be superseded by a later ADR before outside contributions arrive)
 - **Decision owner:** repository owner
 - **Date:** 2026-10-12
 
@@ -16,22 +16,23 @@ Relevant goals: easy adoption and self-hosting, community contributions, transpa
 |---------|------|-----------|------------|
 | MIT | Permissive | Simplest, widest adoption | No patent grant; closed forks allowed |
 | Apache-2.0 | Permissive | Explicit patent grant, contributor terms, widely accepted by companies | Closed forks allowed; longer text |
-| MPL-2.0 | Weak copyleft (file level) | Modifications to covered files stay open; compatible with mixing | Less familiar; file-level boundaries add complexity |
-| AGPL-3.0 | Strong copyleft (network) | Hosted modified versions must share source | Some companies and contributors avoid it; reduces adoption in some ecosystems |
+| MPL-2.0 | Weak copyleft (file level) | Modifications to covered files stay open | Less familiar; file-level boundaries add complexity |
+| AGPL-3.0 | Strong copyleft (network) | Hosted modified versions must share source | Some companies and contributors avoid it; lower adoption in some ecosystems |
 
-## Proposal
+## Decision
 
-**Apache-2.0** for the core application. Reasons: matches the free-first and portability goals, provides a patent grant helpful for AI-related code, and lowers friction for contributors and connector authors.
+**Apache-2.0** for the whole repository (code and documentation) unless a file states otherwise.
 
-**Alternative if the owner's priority is preventing closed hosted forks: AGPL-3.0.**
+Reasons: matches the free-first and portability goals, provides a patent grant relevant to AI-related code, and lowers friction for contributors and connector authors.
 
-Connectors, skills, and documentation may be licensed separately if needed; this should be stated in the repository.
+AGPL-3.0 remains the alternative if preventing closed hosted forks becomes the priority. Switching is cheap now and expensive after outside contributions arrive, so this should be revisited **before the first external code contribution is merged**.
 
 ## Consequences
 
-- After acceptance: add `LICENSE`, add SPDX headers to source files, update `CONTRIBUTING.md`.
-- Contributions are accepted under the chosen license (inbound = outbound), optionally with a DCO sign-off.
-- Changing the license later requires agreement of all copyright holders, so the decision should be made before outside contributions arrive.
+- `LICENSE` (Apache-2.0 text) and `NOTICE` are added at the repository root.
+- Source files will carry an SPDX header: `SPDX-License-Identifier: Apache-2.0`.
+- Contributions are accepted under Apache-2.0 (section 5 of the license); a DCO sign-off is requested (see `CONTRIBUTING.md`).
+- Connectors or skills by third parties may use other licenses if they are separate packages.
 
 ## Not legal advice
 
