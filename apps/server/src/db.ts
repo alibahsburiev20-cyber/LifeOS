@@ -49,6 +49,23 @@ const MIGRATIONS: string[] = [
   );
   CREATE INDEX idx_audit_project ON audit_events(project_id);
   `,
+  `
+  -- Single-user authentication (one row only). Stores a salted scrypt hash, never the passphrase.
+  CREATE TABLE auth_credentials (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    password_hash TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+
+  -- Only a SHA-256 hash of each session token is stored.
+  CREATE TABLE sessions (
+    token_hash TEXT PRIMARY KEY,
+    created_at TEXT NOT NULL,
+    expires_at TEXT NOT NULL
+  );
+  CREATE INDEX idx_sessions_expires ON sessions(expires_at);
+  `,
 ];
 
 export function migrate(db: Db): void {
