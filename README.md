@@ -6,6 +6,8 @@ LifeOS is a project specification for a personal AI agent that can understand a 
 
 **Status:** Product specification / planning stage. The functionality below describes the intended product, not features that are already implemented.
 
+**Documentation and code:** The Phase 0 specification (scope, threat model, data model, permissions, success criteria) and the decision records are in [`docs/phase-0/`](docs/phase-0/README.md) and [`docs/adr/`](docs/adr/0001-license.md). An experimental, unauthenticated server skeleton is in [`apps/server`](apps/server/README.md); it is not a usable product. LifeOS is licensed under [Apache-2.0](LICENSE).
+
 **Inspired by the always-on AI-agent category.** LifeOS is an independent project and is not affiliated with, endorsed by, or a copy of OpenAI or Dots. The aim is to build an interoperable, transparent alternative with a free-first architecture and user control.
 
 ---
@@ -289,7 +291,7 @@ A phase is complete only when its acceptance criteria and security checks pass; 
 
 LifeOS is at the specification stage. Early contributions should focus on clarifying requirements, reviewing architecture, identifying security risks, testing free/self-hosted model options, and proposing small, verifiable milestones. Implementation issues should state the scope, acceptance criteria, risks, and test plan.
 
-Before accepting external contributions or releasing an executable version, the project should choose and publish an explicit open-source licence and contribution policy.
+The project is licensed under Apache-2.0 (see [`LICENSE`](LICENSE) and [ADR 0001](docs/adr/0001-license.md)). See [`CONTRIBUTING.md`](CONTRIBUTING.md) for how to propose changes.
 
 ## References
 
