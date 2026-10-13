@@ -43,26 +43,27 @@ Connector: `type`, `display_name`, `status`, `credential_ref` (handle to encrypt
 
 ## 2. Task state machine
 
-```
-Planned -> In progress -> Completed
-   |           |  ^
-   |           v  |
-   |   Waiting for approval
-   |           |
-   |           v
-   +------> Blocked <-> In progress
-               |
-               v
-            Failed -> Planned (retry)
-```
+States: `planned`, `in_progress`, `waiting_for_approval`, `blocked`, `completed`, `failed`, `cancelled`.
+
+| From | Allowed next states |
+|------|---------------------|
+| planned | in_progress, cancelled |
+| in_progress | waiting_for_approval, blocked, completed, failed, cancelled |
+| waiting_for_approval | in_progress, blocked, cancelled |
+| blocked | in_progress, cancelled |
+| failed | planned (retry) |
+| completed | none (terminal) |
+| cancelled | none (terminal) |
+
+The reference implementation is `apps/server/src/tasks.ts`; this table and that file must be kept in sync.
 
 Rules:
-- `Planned -> In progress` requires an explicit start (manual or via an approved schedule).
-- `In progress -> Waiting for approval` whenever an action above the granted tier is needed.
-- `Blocked` always records what is missing and what the user must decide.
-- `Failed` keeps the error and the last checkpoint; retry creates a new Run.
-- User may cancel from any non-terminal state; cancellation is recorded.
-- A Completed task states how its result can be verified.
+- `planned -> in_progress` requires an explicit start (manual or via an approved schedule).
+- `in_progress -> waiting_for_approval` whenever an action above the granted tier is needed.
+- `blocked` should record what is missing and what the user must decide (not yet implemented in the server skeleton).
+- `failed` keeps the error and the last checkpoint; retry creates a new Run.
+- The user may cancel from any non-terminal state; `cancelled` is a terminal state, so cancellation is recorded.
+- A completed task states how its result can be verified.
 
 ## 3. Principles
 
