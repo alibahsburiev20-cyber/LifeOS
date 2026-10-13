@@ -4,6 +4,9 @@ import Fastify, { type FastifyError, type FastifyInstance, type FastifyReply } f
 import type { Database as Db } from "better-sqlite3";
 import { z } from "zod";
 import { registerAuth, type AuditFn, type AuthOptions } from "./auth.js";
+import { registerConversationRoutes } from "./conversations.js";
+import type { RouteContext } from "./context.js";
+import { registerMemoryRoutes } from "./memory.js";
 import { canTransition, TASK_STATES, type TaskState } from "./tasks.js";
 
 type Row = Record<string, unknown>;
@@ -63,6 +66,8 @@ export function buildApp(db: Db, options: AppOptions = {}): FastifyInstance {
       JSON.stringify(detail),
     );
   };
+
+  const ctx: RouteContext = { db, audit, now, notFound };
 
   app.setErrorHandler((err: FastifyError, _req, reply) => {
     if (err instanceof z.ZodError) {
@@ -201,6 +206,11 @@ export function buildApp(db: Db, options: AppOptions = {}): FastifyInstance {
     audit("task.transition", { project_id: task.project_id as string, task_id: id }, { from, to });
     return getTask(id);
   });
+
+  // ---- Memory and conversations ----
+
+  registerMemoryRoutes(app, ctx);
+  registerConversationRoutes(app, ctx);
 
   return app;
 }
