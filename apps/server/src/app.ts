@@ -3,9 +3,18 @@ import { randomUUID } from "node:crypto";
 import Fastify, { type FastifyError, type FastifyInstance, type FastifyReply } from "fastify";
 import type { Database as Db } from "better-sqlite3";
 import { z } from "zod";
+import { registerAuth, type AuditFn, type AuthOptions } from "./auth.js";
 import { canTransition, TASK_STATES, type TaskState } from "./tasks.js";
 
 type Row = Record<string, unknown>;
+
+export interface AppOptions {
+  /**
+   * Enables authentication. Production (index.ts) always passes this.
+   * Leaving it undefined disables authentication and is meant for internal tests only.
+   */
+  auth?: AuthOptions;
+}
 
 const projectCreate = z.object({
   name: z.string().trim().min(1).max(200),
@@ -30,7 +39,7 @@ const transitionBody = z.object({ to: z.enum(TASK_STATES) });
 
 const PROJECT_FIELDS = ["name", "description", "goal", "instructions", "status"] as const;
 
-export function buildApp(db: Db): FastifyInstance {
+export function buildApp(db: Db, options: AppOptions = {}): FastifyInstance {
   const app = Fastify({ logger: false });
   const now = () => new Date().toISOString();
 
@@ -40,17 +49,14 @@ export function buildApp(db: Db): FastifyInstance {
     db.prepare("SELECT * FROM tasks WHERE id = ?").get(id) as Row | undefined;
   const notFound = (reply: FastifyReply) => reply.status(404).send({ error: "not_found" });
 
-  // Phase 1: every API call is made by the user. Detail must never contain user content.
-  const audit = (
-    type: string,
-    ids: { project_id?: string; task_id?: string },
-    detail: Record<string, unknown> = {},
-  ) => {
+  // API calls are made by the user in Phase 1. Detail must never contain user content.
+  const audit: AuditFn = (type, ids, detail = {}, actor = "user") => {
     db.prepare(
-      "INSERT INTO audit_events (id, created_at, actor, type, project_id, task_id, detail) VALUES (?, ?, 'user', ?, ?, ?, ?)",
+      "INSERT INTO audit_events (id, created_at, actor, type, project_id, task_id, detail) VALUES (?, ?, ?, ?, ?, ?, ?)",
     ).run(
       randomUUID(),
       now(),
+      actor,
       type,
       ids.project_id ?? null,
       ids.task_id ?? null,
@@ -67,6 +73,11 @@ export function buildApp(db: Db): FastifyInstance {
       .status(status)
       .send({ error: status < 500 ? err.message : "internal_error" });
   });
+
+  // Must be registered before the routes below so that its hook covers all of them.
+  if (options.auth) {
+    registerAuth(app, db, options.auth, audit);
+  }
 
   app.get("/health", async () => ({ status: "ok" }));
 
