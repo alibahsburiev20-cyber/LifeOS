@@ -9,14 +9,16 @@ Phase 1 skeleton of the LifeOS server (see `docs/adr/0002-technology-stack.md`).
 - Fastify HTTP API with Zod validation
 - SQLite (WAL, foreign keys on) with versioned migrations (`PRAGMA user_version`)
 - Projects and tasks, with the task state machine from `docs/phase-0/03-data-model.md`
-- Append-only audit events that store ids and states only, never user content
+- Memory: explicit, editable entries with scope (global or project), kind, status (`confirmed`, `preference`, `inferred`), source, pinned flag, and text search. Deleting a memory removes its content; project memories are removed with their project
+- Conversations and messages per project. Until the model gateway exists, only user messages can be stored (a client cannot create assistant messages)
+- Append-only audit events that store ids and states only, never user content (memory text and message text are never logged)
 - Single-user authentication: a passphrase chosen on first run, hashed with scrypt; sessions are random tokens in an `HttpOnly`, `SameSite=Strict` cookie (7 days); only token hashes are stored
 - Login rate limit: 5 failed attempts per client address within 15 minutes, then HTTP 429 (kept in memory, resets on restart)
 - Origin check on state-changing requests (a browser-supplied `Origin` must match `Host`)
 
 ## Not implemented yet
 
-Conversations, memory, runs, approvals, the model gateway, export/import, passphrase change, and the web client.
+Runs, approvals, the model gateway (so no AI replies yet), private sessions, export/import, passphrase change, and the web client.
 
 ## Security notes
 
@@ -48,7 +50,12 @@ Public: `GET /health`, `GET /auth/status`, `POST /auth/setup`, `POST /auth/login
 | POST | `/auth/login` | Body `{ "passphrase": "..." }`; `401` wrong, `429` too many attempts |
 | POST | `/auth/logout` | Ends the session |
 | POST / GET | `/projects` | Create / list (`?status=active\|archived`) |
-| GET / PATCH / DELETE | `/projects/:id` | Read / update / delete (cascades tasks) |
+| GET / PATCH / DELETE | `/projects/:id` | Read / update / delete (cascades tasks, conversations, project memories) |
 | POST / GET | `/projects/:id/tasks` | Create / list tasks |
 | GET | `/tasks/:id` | Read a task |
 | POST | `/tasks/:id/transition` | Body `{ "to": "<state>" }`; `409` if not allowed |
+| POST / GET | `/memories` | Create (`scope`, `text`, optional `project_id`, `kind`, `status`, `source`, `pinned`) / list (`?scope=`, `project_id=`, `status=`, `q=`) |
+| GET / PATCH / DELETE | `/memories/:id` | Read / edit / delete permanently |
+| POST / GET | `/projects/:id/conversations` | Create (optional `title`) / list (`?archived=true\|false`) |
+| GET / PATCH / DELETE | `/conversations/:id` | Read / rename or archive / delete with messages |
+| POST / GET | `/conversations/:id/messages` | Add a user message (`content`) / list in order (`?limit=`) |

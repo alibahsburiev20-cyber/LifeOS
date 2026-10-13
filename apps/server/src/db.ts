@@ -66,6 +66,47 @@ const MIGRATIONS: string[] = [
   );
   CREATE INDEX idx_sessions_expires ON sessions(expires_at);
   `,
+  `
+  -- Memory: explicit, reviewable, editable. Global memories have no project;
+  -- project memories are deleted together with their project.
+  CREATE TABLE memories (
+    id TEXT PRIMARY KEY,
+    scope TEXT NOT NULL CHECK (scope IN ('global', 'project')),
+    project_id TEXT REFERENCES projects(id) ON DELETE CASCADE,
+    text TEXT NOT NULL,
+    kind TEXT NOT NULL DEFAULT 'fact' CHECK (kind IN ('preference', 'fact', 'decision', 'context')),
+    status TEXT NOT NULL DEFAULT 'confirmed' CHECK (status IN ('confirmed', 'preference', 'inferred')),
+    source TEXT NOT NULL DEFAULT '',
+    pinned INTEGER NOT NULL DEFAULT 0 CHECK (pinned IN (0, 1)),
+    recorded_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    CHECK (
+      (scope = 'global' AND project_id IS NULL) OR
+      (scope = 'project' AND project_id IS NOT NULL)
+    )
+  );
+  CREATE INDEX idx_memories_project ON memories(project_id);
+
+  CREATE TABLE conversations (
+    id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    archived INTEGER NOT NULL DEFAULT 0 CHECK (archived IN (0, 1)),
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+  CREATE INDEX idx_conversations_project ON conversations(project_id);
+
+  CREATE TABLE messages (
+    id TEXT PRIMARY KEY,
+    conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+    role TEXT NOT NULL CHECK (role IN ('user', 'assistant', 'system', 'tool')),
+    content TEXT NOT NULL,
+    model_ref TEXT,
+    created_at TEXT NOT NULL
+  );
+  CREATE INDEX idx_messages_conversation ON messages(conversation_id);
+  `,
 ];
 
 export function migrate(db: Db): void {
