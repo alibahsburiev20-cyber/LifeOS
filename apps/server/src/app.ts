@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import Fastify, { type FastifyError, type FastifyInstance, type FastifyReply } from "fastify";
 import type { Database as Db } from "better-sqlite3";
 import { z } from "zod";
@@ -7,6 +7,9 @@ import { registerAuth, type AuditFn, type AuthOptions } from "./auth.js";
 import { registerConversationRoutes } from "./conversations.js";
 import type { RouteContext } from "./context.js";
 import { registerMemoryRoutes } from "./memory.js";
+import { registerProviderRoutes } from "./providers.js";
+import { registerReplyRoutes } from "./reply.js";
+import { createSecretBox } from "./secrets.js";
 import { canTransition, TASK_STATES, type TaskState } from "./tasks.js";
 
 type Row = Record<string, unknown>;
@@ -17,6 +20,13 @@ export interface AppOptions {
    * Leaving it undefined disables authentication and is meant for internal tests only.
    */
   auth?: AuthOptions;
+  /**
+   * 32-byte key that encrypts stored API keys. Production (index.ts) always passes it.
+   * When omitted a random in-memory key is used, so stored keys do not survive a restart.
+   */
+  secretKey?: Buffer;
+  /** Timeout for calls to model servers, in milliseconds. */
+  gatewayTimeoutMs?: number;
 }
 
 const projectCreate = z.object({
@@ -67,7 +77,14 @@ export function buildApp(db: Db, options: AppOptions = {}): FastifyInstance {
     );
   };
 
-  const ctx: RouteContext = { db, audit, now, notFound };
+  const ctx: RouteContext = {
+    db,
+    audit,
+    now,
+    notFound,
+    secrets: createSecretBox(options.secretKey ?? randomBytes(32)),
+    gatewayTimeoutMs: options.gatewayTimeoutMs,
+  };
 
   app.setErrorHandler((err: FastifyError, _req, reply) => {
     if (err instanceof z.ZodError) {
@@ -207,10 +224,12 @@ export function buildApp(db: Db, options: AppOptions = {}): FastifyInstance {
     return getTask(id);
   });
 
-  // ---- Memory and conversations ----
+  // ---- Memory, conversations, models ----
 
   registerMemoryRoutes(app, ctx);
   registerConversationRoutes(app, ctx);
+  registerProviderRoutes(app, ctx);
+  registerReplyRoutes(app, ctx);
 
   return app;
 }
