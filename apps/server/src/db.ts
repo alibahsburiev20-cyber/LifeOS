@@ -107,6 +107,22 @@ const MIGRATIONS: string[] = [
   );
   CREATE INDEX idx_messages_conversation ON messages(conversation_id);
   `,
+  `
+  -- Model providers (ADR 0003). api_key_enc holds AES-256-GCM ciphertext, never a clear-text key.
+  CREATE TABLE model_providers (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    kind TEXT NOT NULL CHECK (kind IN ('local', 'hosted')),
+    base_url TEXT NOT NULL,
+    model TEXT NOT NULL,
+    api_key_enc TEXT,
+    is_default INTEGER NOT NULL DEFAULT 0 CHECK (is_default IN (0, 1)),
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+  -- At most one default provider.
+  CREATE UNIQUE INDEX idx_model_providers_default ON model_providers(is_default) WHERE is_default = 1;
+  `,
 ];
 
 export function migrate(db: Db): void {

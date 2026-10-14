@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { buildApp } from "./app.js";
 import { openDatabase } from "./db.js";
+import { loadSecretKey } from "./secrets.js";
 
 // Safe default: listen on the local machine only.
 const host = process.env.HOST ?? "127.0.0.1";
@@ -15,7 +16,7 @@ if (!["127.0.0.1", "localhost", "::1"].includes(host) && !secureCookies) {
 }
 
 const db = openDatabase(dbPath);
-const app = buildApp(db, { auth: { secureCookies } });
+const app = buildApp(db, { auth: { secureCookies }, secretKey: loadSecretKey(dbPath) });
 
 const shutdown = async () => {
   await app.close();
