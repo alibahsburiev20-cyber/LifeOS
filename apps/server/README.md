@@ -7,6 +7,7 @@ Phase 1 skeleton of the LifeOS server (see `docs/adr/0002-technology-stack.md`).
 ## What exists
 
 - Fastify HTTP API with Zod validation
+- **Web interface** served by the server itself (`public/`: one page, one script, one stylesheet; no build step). Russian and English (chosen from the browser language), light and dark theme, phone-friendly layout. Sign-in or first-run passphrase, projects, chat, tasks with status changes, memory, and model settings
 - SQLite (WAL, foreign keys on) with versioned migrations (`PRAGMA user_version`)
 - Projects and tasks, with the task state machine from `docs/phase-0/03-data-model.md`
 - Memory: explicit, editable entries with scope (global or project), kind, status (`confirmed`, `preference`, `inferred`), source, pinned flag, and text search. Deleting a memory removes its content; project memories are removed with their project
@@ -20,7 +21,14 @@ Phase 1 skeleton of the LifeOS server (see `docs/adr/0002-technology-stack.md`).
 
 ## Not implemented yet
 
-Streaming replies, tool use and actions by the assistant, usage and cost limits, per-project model choice, private sessions, export/import, passphrase change, and the web client.
+Streaming replies, tool use and actions by the assistant, usage and cost limits, per-project model choice, private sessions, export/import, passphrase change, an approvals screen, installable app and notifications.
+
+## Web interface notes
+
+- Start the server and open `http://127.0.0.1:3000` in a browser. On first run the page asks you to choose a passphrase.
+- The page is served with a strict Content-Security-Policy (no inline scripts or styles, no external resources, no framing). The script builds the page with text nodes only; user text is never inserted as HTML. Tests enforce both.
+- Without a configured model the assistant cannot answer; the chat tells you to add one in the Models tab. Everything else works without a model.
+- To reach it from a phone on the same network you would have to change `HOST`, which requires HTTPS (see below). Prefer a reverse proxy with HTTPS and keep the server itself on localhost.
 
 ## Security notes
 
@@ -40,7 +48,7 @@ Streaming replies, tool use and actions by the assistant, usage and cost limits,
 ```bash
 nvm use            # Node 22
 pnpm install
-pnpm dev:server    # http://127.0.0.1:3000
+pnpm dev:server    # then open http://127.0.0.1:3000
 pnpm test
 ```
 
@@ -48,7 +56,7 @@ Environment variables: `HOST` (default `127.0.0.1`), `PORT` (default `3000`), `D
 
 ## API
 
-Public: `GET /health`, `GET /auth/status`, `POST /auth/setup`, `POST /auth/login`. Everything else needs a valid session cookie and returns `401` otherwise.
+Public: `GET /health`, `GET /auth/status`, `POST /auth/setup`, `POST /auth/login`, and the web interface files (`/`, `/app.js`, `/app.css`). Everything else needs a valid session cookie and returns `401` otherwise.
 
 | Method | Path | Purpose |
 |--------|------|---------|

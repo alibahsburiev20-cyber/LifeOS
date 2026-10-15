@@ -96,8 +96,17 @@ const passphraseSetup = z.object({
 });
 const passphraseLogin = z.object({ passphrase: z.string().min(1).max(MAX_PASSPHRASE_LENGTH) });
 
-// Reachable without a session.
-const PUBLIC_PATHS = new Set(["/health", "/auth/status", "/auth/setup", "/auth/login"]);
+// Reachable without a session: the sign-in endpoints and the files of the web interface
+// (the interface itself holds no data; every data request still needs a session).
+const PUBLIC_PATHS = new Set([
+  "/health",
+  "/auth/status",
+  "/auth/setup",
+  "/auth/login",
+  "/",
+  "/app.js",
+  "/app.css",
+]);
 
 export function registerAuth(
   app: FastifyInstance,
