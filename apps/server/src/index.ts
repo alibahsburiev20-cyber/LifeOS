@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-import { buildApp } from "./app.js";
 import { openDatabase } from "./db.js";
+import { buildServer } from "./server.js";
 import { loadSecretKey } from "./secrets.js";
 
 // Safe default: listen on the local machine only.
@@ -16,7 +16,7 @@ if (!["127.0.0.1", "localhost", "::1"].includes(host) && !secureCookies) {
 }
 
 const db = openDatabase(dbPath);
-const app = buildApp(db, { auth: { secureCookies }, secretKey: loadSecretKey(dbPath) });
+const app = buildServer(db, { auth: { secureCookies }, secretKey: loadSecretKey(dbPath) });
 
 const shutdown = async () => {
   await app.close();
@@ -27,5 +27,5 @@ process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
 await app.listen({ host, port });
-console.log(`LifeOS server listening on http://${host}:${port} (database: ${dbPath})`);
-console.log("First run: choose a passphrase with POST /auth/setup before exposing the server to anyone else.");
+console.log(`LifeOS is running. Open http://${host}:${port} in your browser (database: ${dbPath}).`);
+console.log("First run: the page asks you to choose a passphrase. Do this yourself before exposing the server to anyone else.");
